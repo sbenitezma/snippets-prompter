@@ -1,0 +1,12 @@
+# Dependencies installed by npm (regenerated with `npm install`)
+node_modules/
+
+# Build output and test coverage (regenerated from source)
+dist/
+coverage/
+
+# Real environment variables (secrets). Only .env.example is committed
+.env
+
+# Personal Claude Code settings (local permissions)
+.claude/settings.local.json

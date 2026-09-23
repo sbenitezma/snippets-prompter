@@ -1,0 +1,3 @@
+# Normalize line endings: always LF, in the repository and in the working copy.
+# Docker containers run Linux, where CRLF line endings can break scripts.
+* text=auto eol=lf
