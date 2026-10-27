@@ -1,7 +1,7 @@
 # ADR 0002 — Data validation: Zod (via `nestjs-zod`), without a separate OpenAPI specification
 
 ## Status
-Accepted (2026-09-22)
+Accepted (2026-09-22). **Amended 2026-10-03 (see ADR 0003)**: the project's primary scope is now frontend-only, with no backend API to validate. The backend-side reasoning here (`nestjs-zod`) is deferred and applies only if the optional backend phase 2 is undertaken. Zod itself stays in active use regardless, for client-side form validation with React Hook Form (see `CLAUDE.md`) — only the backend-sharing rationale is on hold.
 
 ## Context
 
