@@ -9,69 +9,83 @@
 
 It started as a **portfolio project** for Sonia, an independent Senior Frontend Engineer (~15 years of experience, specialized in Design Systems and accessibility) who builds products from ideas shaped by her previous experience in different software apps.
 
-**Very important — a learning goal, not just a delivery goal**: this project is not only a portfolio piece, it is where Sonia wants to strengthen her skills in depth. She is refreshing her Docker skills and wants to understand in detail what each piece does. As a collaborator on this project (human or Claude Code):
+**Very important — a learning goal, not just a delivery goal**: this project is not only a portfolio piece, it is where Sonia wants to strengthen her skills in depth. As a collaborator on this project (human or Claude Code):
 
-- Explain new concepts (Docker, NestJS, Prisma, etc.) before or while they are used; do not take the code for granted.
-- Sonia writes/reviews the code with guidance; it is not generated all at once without her understanding it.
-- Move forward in small, closed iterations (see `docs/vision-and-roadmap.md`), never in a single big leap.
+- Explain new concepts (Docker, accessibility testing, etc.) before or while they are used; do not take the code for granted.
+- Sonia leads the design and reviews every change; nothing lands without her understanding it. Keep explaining decisions (README, ADRs, code comments) so she can explain and defend every part of it.
+- Move forward one named **mission per session** (see section 6), never by generating the whole app at once.
 - Prioritize Sonia understanding the "why" behind each decision over delivery speed.
 
 ## 2. Portfolio goal (do not lose sight of it)
 
-The technologies in this project were chosen after a market study of the most widely used technologies in Sonia's area today, focusing on those she wants to strengthen. Together with the rest of the portfolio (including another, currently private portfolio project, on hold while this one lasts), this project exists to demonstrate:
+**Scope pivot (2026-10-03, see ADR 0003)**: the original plan paired this project with a NestJS/PostgreSQL backend. A review of the plan favoured shipping a usable, deployed tool first, worked in larger session missions. The project is now **frontend-only for its primary scope**: a deployed, testable, accessible React + TypeScript app with local persistence. The backend work is not cancelled — it becomes an **optional phase 2**, explicitly out of the primary scope (see section 3 and ADR 0003 for the trigger condition that decides whether it happens).
 
-1. **Modern Node.js/TypeScript backend with NestJS** — building on her previous backend experience with PHP/Flask/Java; NestJS offers a conceptual bridge from Angular (modules, dependency injection, decorators).
-2. **A real relational database** (PostgreSQL + Prisma), with a data model that includes many-to-many relationships.
-3. **Containerization with Docker**: frontend and backend in separate containers that talk to each other, refreshing and deepening Sonia's Docker skills.
-4. **Multi-layer testing and CI** (unit, API with Supertest, e2e with Playwright, GitHub Actions).
-5. **Product thinking and disciplined iteration**: decisions recorded as ADRs, each iteration's scope closed before starting the next one — showing product and technical leadership, not only implementation.
+Together with the rest of the portfolio (including another, currently private portfolio project, on hold while this one lasts), this project now exists to demonstrate:
 
-**How it differs from the other portfolio project**: that project already covers React, Node/TypeScript, offline-first and auth. This project must not repeat that — its added value is Docker, PostgreSQL / a relational ORM, NestJS as a structured backend framework, and a more complete CI/testing pipeline.
+1. **A complete, deployed React + TypeScript application**, built and shipped end to end — not just a code sample.
+2. **Testing discipline**: component/unit tests with Vitest + Testing Library.
+3. **Accessibility as practice, not afterthought** — Sonia's existing specialty, demonstrated concretely in this app.
+4. **Containerization with Docker**: a multi-stage build (Node to build, nginx to serve) — refreshing Sonia's Docker skills with a real, scoped-down project.
+5. **Product thinking and disciplined iteration**: decisions recorded as ADRs, a clear README explaining what was built and why.
+
+If the optional phase 2 (NestJS + PostgreSQL + Prisma backend) is undertaken later, it would additionally demonstrate a modern Node/TypeScript backend and a relational data model — see the deferred-scope ADRs (0001, 0002) for that reasoning, still valid if phase 2 happens.
+
+**How it differs from the other portfolio project**: that project already covers React, Node/TypeScript, offline-first and auth. If the optional backend phase 2 here ever happens, it must still add Docker-based multi-service orchestration, PostgreSQL/a relational ORM and a fuller CI/testing pipeline — not repeat the other project.
 
 **Confidentiality note**: real prompts from beauty campaigns may be client material. The public repository (and any sample/seed data) always uses made-up data, never real campaign content.
 
-## 3. MVP scope — what we build first
+## 3. Scope — what we build first
 
-The **MVP is a CRUD of prompts with free-form categories (many-to-many), "create from" with a link to the source, substitutable variables and copy to clipboard — no user accounts, no calls to the Claude API.**
+**Primary scope (frontend-only)**: a CRUD of prompts with free-form categories, "create from" with a link to the source, substitutable variables, copy to clipboard, search — all persisted in the browser (`localStorage`), deployed, tested, accessible, and documented with a README.
 
 - Create, edit, delete and list prompts (title, body, variables).
-- Each prompt can have **one or more categories**, freely created by the user (no predefined list).
-- **"Create from"**: duplicates an existing prompt as the basis for a new one, storing a reference (`sourceId`) to the source prompt. If the source prompt is deleted, the reference becomes `null` (`ON DELETE SET NULL`) — deletion is not blocked and no record of the source's name is kept.
+- Each prompt can have **one or more categories**, freely created by the user (no predefined list), stored as `categories: string[]` on the prompt itself (no relational tables — this is a client-only data model, see `docs/data-model.md` for how it maps to the original relational design).
+- **"Create from"**: duplicates an existing prompt as the basis for a new one, storing a reference (`sourceId`) to the source prompt's `id`. If the source prompt is deleted, the reference is simply left pointing at an id that no longer exists in the list — reads must treat a missing source as "no source" (equivalent in effect to `ON DELETE SET NULL`, just handled in the UI/read logic instead of by a database).
 - Prompts with `{{variable}}`-style variables; a form lets the user fill them in and copy the final result to the clipboard.
-- No authentication in the MVP (implicitly single-user). User accounts are added in a later iteration.
-- No Claude API call in the MVP: running the prompt is the user's responsibility (copy and paste into whichever AI they use). Automatic execution via the API is left for a future/premium phase.
+- Free-text search over title and body.
+- No authentication, no server, no Claude API call in this scope.
 
-## 4. Iteration roadmap
+**Deferred — optional phase 2 (see ADR 0003 for the trigger condition)**: NestJS backend, PostgreSQL + Prisma, user accounts, prompt version history, export/import, running the prompt via the Claude API, multilingual prompts, adopting a shared design system package. These are not cancelled, just explicitly out of the primary scope. Reference ADRs: 0001 (NestJS), 0002 (Zod/nestjs-zod validation) — still valid reasoning if phase 2 happens.
 
-Each iteration is small, closed, and ends in something that works end to end (even if minimal). See `docs/vision-and-roadmap.md` for the details and the "done" criteria of each one.
+## 4. Session plan
 
-1. Vision and data model (this document + `docs/vision-and-roadmap.md` + `docs/data-model.md`)
-2. Walking skeleton (health endpoint + React page that calls it + Docker Compose + green CI)
-3. Prompt CRUD with associated categories, validation, copy button and "create from"
-4. Category management and search (filters, full-text search)
-5. Prompt variables + "Copy" button with substitution — **reasonable close of the MVP**
-6. User accounts (single-user first, multi-user as a design contrast with the other portfolio project)
-7. Version history, export/import, accessibility with axe
-7b. (Phase 2) Draft autosave, inspired by Sonia's previous experience in different software apps
-8. (Future/premium) Running the prompt through the Claude API with streaming
-9. (Future) Multilingual prompts: manual language versions first, automatic translation later (depends on iteration 8)
-10. (Future) Adopt Sonia's shared design system (separate repository, published as an npm package), once it has a first published version
+Each session has **one named mission** (not a general goal), sized for ~90 minutes with 2-3 small steps inside it. See `docs/vision-and-roadmap.md` for the full session-by-session plan and "done" criteria. `NEXT-STEP.md` always has the exact mission for the next session.
+
+1. **Base**: Vite + React + TypeScript project, structure, types, static list of example prompts.
+2. **CRUD**: create/edit/delete form, state, `localStorage` persistence.
+3. **Real use**: copy to clipboard, search, simple categories.
+4. **`ui/` and styling**: extract whatever reusable components emerged (button, input, card), make it presentable.
+5. **Quality**: basic tests (Vitest + Testing Library), accessibility pass.
+6. **Publish**: deploy (Vercel or Netlify), README with screenshots and the decisions made.
+7. **Docker (~90 min)**: multi-stage Dockerfile (Node to build, nginx to serve), `.dockerignore`, local test run, minimal single-service `docker-compose.yml`. If it stalls, split into two halves: build first, then serve with nginx.
+8. **Optional (~60 min)**: GitHub Actions workflow that builds the image on every push.
+
+Plus 2 buffer sessions for anything unplanned. Target: ~2-2.5 weeks at the cadence in section 6.
 
 ## 5. Tech stack
 
-- **Frontend**: React + TypeScript + Vite. TanStack Query for server data. React Hook Form + Zod for forms. Vitest + Testing Library for unit/component tests. Styles use semantic design tokens (CSS custom properties in a single file, never raw values in components), ready to be replaced by Sonia's shared design system package in iteration 10.
-- **Backend**: NestJS (Node.js + TypeScript). Chosen because it is the most widely used Node backend framework according to the market study (see section 2), and because of its conceptual similarity to Angular (modules, injectable services, decorators), which makes it a good learning bridge.
-- **Database**: PostgreSQL + Prisma as the ORM.
-- **Infrastructure**: Docker Compose with three services — `frontend`, `backend`, `postgres` — in separate containers connected through Docker's internal network (the frontend calls the backend by its service name, e.g. `http://backend:3000`).
-- **Quality**: Playwright (e2e), Supertest (API tests), GitHub Actions (CI) from iteration 2 onwards.
+- **Frontend**: React + TypeScript + Vite. React Hook Form + Zod for form validation (still a good fit with no backend — one schema, one source of truth for validation and inferred types). Vitest + Testing Library for unit/component tests. Styles use semantic design tokens (CSS custom properties in a single file, never raw values in components), ready to be replaced by Sonia's shared design system package if that's ever adopted.
+- **Persistence**: browser `localStorage` — no server, no database, in the primary scope.
+- **Infrastructure**: a single Docker image, multi-stage build — a Node stage to build the static assets, an nginx stage to serve them. No multi-service orchestration in the primary scope (that would return if the optional backend phase 2 happens).
+- **Quality**: Vitest + Testing Library (unit/component), manual accessibility review (axe browser extension or similar), optional GitHub Actions to build the Docker image on push.
+- **Deferred (phase 2 only)**: NestJS, PostgreSQL, Prisma, TanStack Query, Supertest, Playwright, Docker Compose with multiple services — all still documented in ADRs 0001/0002 for when/if that phase happens.
 
 Every stack decision, with the alternatives considered, is documented as an ADR in `docs/adr/`.
 
 ## 6. How to work in this repo with Claude
 
-- One session per closed goal (an iteration, or a small part of one).
+- **One mission per session** (~90 minutes, 2-3 small steps inside it) — not one tiny step per session, and not an open-ended iteration.
+- **Name the exact mission before starting a session** — not the general project goal. `NEXT-STEP.md` should already have it from the end of the previous session.
+- **Cadence**: aim for ~4 sessions per week, never more than 2-3 days without touching the project — the real risk to this project is a long break losing context, not session length.
+- Sonia sets the scope of each session and reviews every change; anything Claude proposes comes with an explanation she can follow.
 - Results live in files in the repo, not only in the chat history.
-- Code is implemented by explaining new concepts as they appear (see section 1).
-- Relevant architecture decisions are documented as ADRs before being considered closed.
-- Before generating code for an iteration, confirm that its scope and data model are closed in the corresponding documentation.
+- Relevant architecture decisions are documented as ADRs before being considered closed; an ADR is amended with a short status note rather than rewritten when a later decision changes its scope (see ADRs 0001/0002, amended by ADR 0003).
 - All repository content (docs, ADRs, README, code comments, config files) is written in English, since this is an international portfolio project. Conversations with Sonia happen in Spanish (Spain).
+
+## 7. Session continuity (`NEXT-STEP.md`)
+
+Sonia works in sessions with sometimes long breaks between them, and each Claude Code session starts with no memory of previous ones. To avoid losing track of where the project stands:
+
+- `NEXT-STEP.md` (repo root) always states, in a few lines: which session number/mission is next, what was last completed, and the exact mission for the next session (not a general goal).
+- At the end of every session that changes code or docs, update `NEXT-STEP.md` before finishing — this is not optional, it is the last step of the session itself.
+- At the start of a session, read `NEXT-STEP.md` first (even before `docs/vision-and-roadmap.md`) to know exactly where to resume and what the named mission is.
