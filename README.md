@@ -7,7 +7,7 @@ fill in before copying the final text to the clipboard.
 Everything runs in the browser and is saved in `localStorage`: no account, no
 server.
 
-> Screenshot: _add one here after the first deploy._
+![Filling the variables of a prompt and previewing the result](docs/screenshot.jpg)
 
 ## Features
 
@@ -99,4 +99,4 @@ The example prompts are made up. Never commit real client or campaign content.
 
 ## License
 
-Not yet chosen.
+[MIT](LICENSE)
