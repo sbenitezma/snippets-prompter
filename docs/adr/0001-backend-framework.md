@@ -1,7 +1,7 @@
 # ADR 0001 — Backend framework: NestJS
 
 ## Status
-Accepted (2026-09-22)
+Accepted (2026-09-22). **Amended 2026-10-03 (see ADR 0003)**: the project's primary scope is now frontend-only; this decision is deferred and applies only if the optional backend phase 2 is undertaken.
 
 ## Context
 
