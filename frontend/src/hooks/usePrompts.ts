@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { newId } from '../lib/prompts';
-import { loadPrompts, savePrompts } from '../lib/storage';
+import { loadPrompts, savePrompts, type LoadResult } from '../lib/storage';
 import type { Prompt, PromptDraft } from '../types';
 
 /** Prompt collection persisted in localStorage. */
 export function usePrompts() {
-  const [prompts, setPrompts] = useState<Prompt[]>(() => loadPrompts());
+  // Loaded once: loadPrompts also writes a backup when stored data is unreadable.
+  const [initial] = useState<LoadResult>(() => loadPrompts());
+  const [prompts, setPrompts] = useState<Prompt[]>(initial.prompts);
 
   useEffect(() => {
     savePrompts(prompts);
@@ -26,5 +28,13 @@ export function usePrompts() {
     setPrompts((current) => current.filter((prompt) => prompt.id !== id));
   }, []);
 
-  return { prompts, addPrompt, updatePrompt, deletePrompt };
+  return {
+    prompts,
+    addPrompt,
+    updatePrompt,
+    deletePrompt,
+    /** Replaces the whole collection (used by import, after the user confirms). */
+    replacePrompts: setPrompts,
+    backupKey: initial.backupKey,
+  };
 }
