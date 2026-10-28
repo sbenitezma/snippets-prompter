@@ -51,11 +51,7 @@ export function PromptCard({
         <Button onClick={() => onUse(prompt)} aria-label={`Use ${prompt.title}`}>
           Use
         </Button>
-        <Button
-          tone="secondary"
-          onClick={() => onEdit(prompt)}
-          aria-label={`Edit ${prompt.title}`}
-        >
+        <Button tone="secondary" onClick={() => onEdit(prompt)} aria-label={`Edit ${prompt.title}`}>
           Edit
         </Button>
         <Button
