@@ -1,0 +1,7 @@
+title,body,categories,id,sourceId
+Product launch teaser,Write a {{tone}} teaser for the launch of {{product}} aimed at {{audience}}. Keep it under {{length}} words and end with a call to action.,"marketing, social",seed-1,
+Explain like I'm new,Explain {{topic}} to someone with no background in it. Use one analogy and finish with three questions to check understanding.,learning,seed-2,
+Code review request,"Review the following {{language}} code for bugs, readability and accessibility issues. Be specific and suggest fixes.
+
+{{code}}",coding,seed-3,
+Product launch teaser (short),Write a {{tone}} one-line teaser for {{product}}.,marketing,seed-4,seed-1
