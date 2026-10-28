@@ -1,6 +1,6 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ComponentProps } from 'react';
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = ComponentProps<'button'> & {
   /** Visual intent. Defaults to the primary action. */
   tone?: 'primary' | 'secondary' | 'danger';
 };

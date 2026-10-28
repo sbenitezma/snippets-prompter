@@ -138,6 +138,67 @@ describe('App', () => {
   });
 });
 
+describe('theme', () => {
+  it('follows the system by default and remembers a chosen theme', async () => {
+    const { user, unmount } = setup();
+    const select = screen.getByRole('combobox', { name: 'Theme' });
+    expect(select).toHaveValue('system');
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+
+    await user.selectOptions(select, 'dark');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    unmount();
+    render(<App />);
+    expect(screen.getByRole('combobox', { name: 'Theme' })).toHaveValue('dark');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), 'system');
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+  });
+});
+
+describe('focus management', () => {
+  it('moves focus into the variable panel and back to its button on close', async () => {
+    const { user } = setup();
+    const useButton = screen.getByRole('button', { name: 'Use Product launch teaser' });
+    await user.click(useButton);
+    expect(screen.getByLabelText('tone')).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('heading', { name: /^Use “/ })).not.toBeInTheDocument();
+    expect(useButton).toHaveFocus();
+  });
+
+  it('returns focus to the opener after saving a form', async () => {
+    const { user } = setup();
+    await createPrompt(user, 'Focus test', 'Body');
+    expect(screen.getByRole('button', { name: 'New prompt' })).toHaveFocus();
+    expect(screen.getByText('Saved “Focus test”.')).toBeInTheDocument();
+  });
+
+  it('keeps focus on the delete controls and lands on the list after deleting', async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole('button', { name: "Delete Explain like I'm new" }));
+    expect(
+      screen.getByRole('button', { name: "Confirm delete Explain like I'm new" }),
+    ).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: "Keep Explain like I'm new" }));
+    expect(screen.getByRole('button', { name: "Delete Explain like I'm new" })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: "Delete Explain like I'm new" }));
+    await user.click(screen.getByRole('button', { name: "Confirm delete Explain like I'm new" }));
+    expect(screen.getByRole('heading', { level: 2, name: /Your prompts/ })).toHaveFocus();
+    expect(screen.getByText('Deleted “Explain like I\'m new”.')).toBeInTheDocument();
+  });
+
+  it('announces how many prompts match a search', async () => {
+    const { user } = setup();
+    await user.type(screen.getByRole('searchbox', { name: 'Search prompts' }), 'teaser');
+    expect(screen.getByText('2 prompts match.')).toBeInTheDocument();
+  });
+});
+
 describe('accessibility', () => {
   it('has no axe violations on the main view', async () => {
     const { container } = setup();
