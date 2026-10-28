@@ -1,18 +1,32 @@
-/* Semantic design tokens. Components never use raw values: they read these. */
+/*
+ * Semantic design tokens. Components never use raw values: they read these.
+ *
+ * Each colour is written once as light-dark(<light>, <dark>). The browser picks
+ * the value from `color-scheme`, which follows the OS setting by default and is
+ * pinned by the theme switcher through `data-theme` on <html>.
+ * Pairs used for text meet WCAG AA (4.5:1); control borders and the focus ring
+ * meet the 3:1 non-text contrast minimum, in both themes.
+ */
 :root {
-  --color-bg: #f7f6f3;
-  --color-surface: #ffffff;
-  --color-text: #1f2430;
-  --color-text-muted: #525866;
-  --color-border: #c9ccd3;
-  --color-primary: #3338c9;
-  --color-primary-hover: #2428a3;
-  --color-on-primary: #ffffff;
-  --color-danger: #b3261e;
-  --color-danger-surface: #fdecea;
-  --color-focus: #1a73e8;
-  --color-chip-bg: #e8e9fb;
-  --color-chip-text: #20238a;
+  color-scheme: light dark;
+
+  --color-bg: light-dark(#f7f6f3, #14161c);
+  --color-surface: light-dark(#ffffff, #1d2028);
+  --color-text: light-dark(#1f2430, #eceef3);
+  --color-text-muted: light-dark(#525866, #a9aebb);
+  /* Decorative separators (cards). */
+  --color-border: light-dark(#d5d7dd, #353a46);
+  /* Borders that identify a control (inputs, chips): 3:1 minimum. */
+  --color-border-control: light-dark(#767b88, #7a8193);
+  --color-primary: light-dark(#3338c9, #8f93ff);
+  --color-primary-hover: light-dark(#2428a3, #aaadff);
+  --color-on-primary: light-dark(#ffffff, #10121a);
+  --color-danger: light-dark(#b3261e, #ff8a80);
+  --color-danger-surface: light-dark(#fdecea, #3a1f1d);
+  --color-focus: light-dark(#1a73e8, #8ab4f8);
+  --color-chip-bg: light-dark(#e8e9fb, #2b2e4d);
+  --color-chip-text: light-dark(#20238a, #c9cbff);
+  --shadow-card: 0 1px 2px light-dark(rgb(0 0 0 / 8%), transparent);
 
   --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -26,25 +40,13 @@
 
   --radius-sm: 0.375rem;
   --radius-md: 0.75rem;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 8%);
   --size-content: 52rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #14161c;
-    --color-surface: #1d2028;
-    --color-text: #eceef3;
-    --color-text-muted: #a9aebb;
-    --color-border: #444a58;
-    --color-primary: #8f93ff;
-    --color-primary-hover: #aaadff;
-    --color-on-primary: #10121a;
-    --color-danger: #ff8a80;
-    --color-danger-surface: #3a1f1d;
-    --color-focus: #8ab4f8;
-    --color-chip-bg: #2b2e4d;
-    --color-chip-text: #c9cbff;
-    --shadow-card: none;
-  }
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
