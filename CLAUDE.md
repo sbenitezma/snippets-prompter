@@ -43,9 +43,10 @@ If the optional phase 2 (NestJS + PostgreSQL + Prisma backend) is undertaken lat
 - **"Create from"**: duplicates an existing prompt as the basis for a new one, storing a reference (`sourceId`) to the source prompt's `id`. If the source prompt is deleted, the reference is simply left pointing at an id that no longer exists in the list — reads must treat a missing source as "no source" (equivalent in effect to `ON DELETE SET NULL`, just handled in the UI/read logic instead of by a database).
 - Prompts with `{{variable}}`-style variables; a form lets the user fill them in and copy the final result to the clipboard.
 - Free-text search over title and body.
+- CSV import/export for backups and spreadsheet editing (brought forward from phase 2, see ADR 0004).
 - No authentication, no server, no Claude API call in this scope.
 
-**Deferred — optional phase 2 (see ADR 0003 for the trigger condition)**: NestJS backend, PostgreSQL + Prisma, user accounts, prompt version history, export/import, running the prompt via the Claude API, multilingual prompts, adopting a shared design system package. These are not cancelled, just explicitly out of the primary scope. Reference ADRs: 0001 (NestJS), 0002 (Zod/nestjs-zod validation) — still valid reasoning if phase 2 happens.
+**Deferred — optional phase 2 (see ADR 0003 for the trigger condition)**: NestJS backend, PostgreSQL + Prisma, user accounts, prompt version history, running the prompt via the Claude API, multilingual prompts, adopting a shared design system package. These are not cancelled, just explicitly out of the primary scope. Reference ADRs: 0001 (NestJS), 0002 (Zod/nestjs-zod validation) — still valid reasoning if phase 2 happens.
 
 ## 4. Session plan
 

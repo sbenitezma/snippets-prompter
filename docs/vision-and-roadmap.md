@@ -21,6 +21,7 @@ A single user: Sonia herself. The data model does not need multi-user support, a
 - Variables inside the prompt body (`{{variable}}`), with a form to fill them in.
 - "Copy" button that copies the prompt to the clipboard with the variables already substituted.
 - Free-text search over title and body.
+- CSV import/export, compatible with Google Sheets and Excel (brought forward from phase 2, see ADR 0004).
 - A single Docker image (multi-stage build: Node to build, nginx to serve).
 - Automated tests (Vitest + Testing Library) and a manual accessibility pass.
 - Deployed (Vercel or Netlify) with a README documenting what was built and why.
@@ -28,7 +29,7 @@ A single user: Sonia herself. The data model does not need multi-user support, a
 **Out (deferred — optional phase 2, see ADR 0003 for the trigger condition):**
 - NestJS backend, PostgreSQL + Prisma, a relational data model.
 - User accounts / authentication.
-- Prompt version history, export/import.
+- Prompt version history.
 - Draft autosave.
 - Running the prompt against the Claude API.
 - Multilingual prompts.
@@ -93,7 +94,7 @@ Each session has **one named mission** (not a general goal), sized for ~90 minut
 2 extra sessions, unallocated, for anything that ran over or wasn't planned. Target overall: ~2-2.5 weeks at the stated cadence.
 
 ### Deferred — optional phase 2 (not scheduled)
-If undertaken (see ADR 0003 for the trigger condition): NestJS backend, PostgreSQL + Prisma relational model, user accounts, prompt version history, export/import, Claude API execution, multilingual prompts, adopting the shared design system package, multi-service Docker Compose, Supertest, Playwright. The original relational design for this work already exists in `docs/data-model.md` and ADRs 0001/0002.
+If undertaken (see ADR 0003 for the trigger condition): NestJS backend, PostgreSQL + Prisma relational model, user accounts, prompt version history, Claude API execution, multilingual prompts, adopting the shared design system package, multi-service Docker Compose, Supertest, Playwright. The original relational design for this work already exists in `docs/data-model.md` and ADRs 0001/0002.
 
 ## Risk to watch
 
