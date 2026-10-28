@@ -1,11 +1,22 @@
 import { useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { ImportPanel } from './components/ImportPanel';
 import { PromptCard } from './components/PromptCard';
 import { PromptForm } from './components/PromptForm';
+import { RecoveryNotice } from './components/RecoveryNotice';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { VariablePanel } from './components/VariablePanel';
 import { usePrompts } from './hooks/usePrompts';
+import { datedFilename, downloadText } from './lib/download';
 import { allCategories, filterPrompts, findSource } from './lib/prompts';
+import {
+  exportPromptsCsv,
+  ImportError,
+  mergePrompts,
+  parsePromptsCsv,
+  type ImportIssue,
+  type MergeResult,
+} from './lib/promptsCsv';
 import type { Prompt, PromptDraft } from './types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
@@ -15,10 +26,19 @@ type Mode =
   | { kind: 'idle' }
   | { kind: 'create'; from?: Prompt }
   | { kind: 'edit'; prompt: Prompt }
-  | { kind: 'use'; prompt: Prompt };
+  | { kind: 'use'; prompt: Prompt }
+  | {
+      kind: 'import';
+      fileName: string;
+      preview?: MergeResult;
+      issues: ImportIssue[];
+      error?: string;
+    };
 
 export default function App() {
-  const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
+  const { prompts, addPrompt, updatePrompt, deletePrompt, replacePrompts, backupKey } =
+    usePrompts();
+  const [showRecovery, setShowRecovery] = useState(backupKey !== undefined);
   const [mode, setMode] = useState<Mode>({ kind: 'idle' });
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
@@ -27,6 +47,7 @@ export default function App() {
   const listHeading = useRef<HTMLHeadingElement>(null);
   // The button that opened the panel, so closing it puts focus back where the user was.
   const opener = useRef<HTMLElement | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const categories = useMemo(() => allCategories(prompts), [prompts]);
   const visible = useMemo(
@@ -71,6 +92,30 @@ export default function App() {
     listHeading.current?.focus();
   }
 
+  function exportCsv() {
+    const filename = datedFilename('csv');
+    downloadText(filename, exportPromptsCsv(prompts), 'text/csv');
+    setAnnouncement(`Exported ${prompts.length} prompts to ${filename}.`);
+  }
+
+  async function importFile(file: File) {
+    const fileName = file.name;
+    try {
+      const { rows, issues } = parsePromptsCsv(await file.text());
+      open({ kind: 'import', fileName, preview: mergePrompts(prompts, rows), issues });
+    } catch (error) {
+      const message =
+        error instanceof ImportError ? error.message : 'The file could not be read as CSV.';
+      open({ kind: 'import', fileName, issues: [], error: message });
+    }
+  }
+
+  function confirmImport(preview: MergeResult) {
+    replacePrompts(preview.prompts);
+    setAnnouncement(`Imported ${preview.added} new and ${preview.updated} updated prompts.`);
+    close();
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -91,6 +136,26 @@ export default function App() {
               onChange={(event) => setQuery(event.target.value)}
             />
             <Button onClick={() => open({ kind: 'create' })}>New prompt</Button>
+          </div>
+          <div className="toolbar-row">
+            <Button tone="secondary" onClick={() => fileInput.current?.click()}>
+              Import CSV
+            </Button>
+            <Button tone="secondary" onClick={exportCsv}>
+              Export CSV
+            </Button>
+            <input
+              ref={fileInput}
+              type="file"
+              accept=".csv,.tsv,text/csv,text/tab-separated-values"
+              aria-label="CSV file to import"
+              hidden
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = ''; // Choosing the same file again still triggers a change.
+                if (file) void importFile(file);
+              }}
+            />
           </div>
           {categories.length > 0 && (
             <fieldset className="chips">
@@ -117,6 +182,10 @@ export default function App() {
             </fieldset>
           )}
         </div>
+
+        {showRecovery && backupKey && (
+          <RecoveryNotice backupKey={backupKey} onDismiss={() => setShowRecovery(false)} />
+        )}
 
         {mode.kind === 'create' && (
           <PromptForm
@@ -146,6 +215,17 @@ export default function App() {
         )}
         {mode.kind === 'use' && (
           <VariablePanel key={mode.prompt.id} prompt={mode.prompt} onClose={close} />
+        )}
+        {mode.kind === 'import' && (
+          <ImportPanel
+            key={mode.fileName}
+            fileName={mode.fileName}
+            preview={mode.preview}
+            issues={mode.issues}
+            error={mode.error}
+            onConfirm={confirmImport}
+            onCancel={close}
+          />
         )}
 
         <section aria-labelledby="list-heading">
