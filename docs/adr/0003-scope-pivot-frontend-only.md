@@ -1,7 +1,7 @@
 # ADR 0003 — Scope pivot: frontend-only primary scope, backend deferred as optional phase 2
 
 ## Status
-Accepted (2026-10-03). Amends ADR 0001 and ADR 0002 — see the amendment notes added to each.
+Accepted (2026-10-03). Amends ADR 0001 and ADR 0002 — see the amendment notes added to each. **Amended 2026-10-29**: the unused `backend/` scaffold was removed from the repository. If phase 2 happens, it starts from a fresh scaffold; the design to follow is still ADRs 0001/0002 and `docs/data-model.md`.
 
 ## Context
 
