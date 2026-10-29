@@ -1,6 +1,6 @@
 # Data model — Snippets Prompter
 
-Status: closed for the MVP (iterations 1–5). It does not yet include user accounts (iteration 6) or drafts (iteration 7b): when those iterations arrive, this document is updated and an ADR is opened if the change affects existing relationships.
+Status: relational design reserved for the optional backend phase 2 (see [ADR 0003](adr/0003-scope-pivot-frontend-only.md)). The current app stores a flattened version of this model in `localStorage`: `categories` is a string array on each prompt, and a `sourceId` pointing at a deleted prompt is treated as "no source" by the read logic (see [`vision-and-roadmap.md`](vision-and-roadmap.md#what-a-snippetprompt-is-in-this-app)). If phase 2 happens, this document is updated and an ADR is opened for any change to existing relationships.
 
 ## Entities
 
@@ -33,7 +33,7 @@ Composite primary key (`promptId`, `categoryId`).
 
 ## Relationships
 
-- A `Prompt` can have **one or more** `Category` (many-to-many via `PromptCategory`). This was decided explicitly from the MVP because it is not known in advance how many categories will be applied to each prompt in practice; switching from "one" to "many" later would have required migrating data and changing forms/filters.
+- A `Prompt` can have **one or more** `Category` (many-to-many via `PromptCategory`). This was decided from the start because it is not known in advance how many categories will be applied to each prompt in practice; switching from "one" to "many" later would have required migrating data and changing forms/filters.
 - A `Prompt` can have **at most one** source `Prompt` (`sourceId`), and can be the source of **many** child `Prompt`s (self-referencing one-to-many relationship).
 
 ## Relevant business rules
@@ -41,7 +41,7 @@ Composite primary key (`promptId`, `categoryId`).
 1. **Deleting a category**: when a `Category` is deleted, only the `PromptCategory` rows that reference it are removed (the prompts are not deleted, they simply lose that category). A prompt left with no categories is valid — having at least one is not required.
 2. **Deleting the source prompt**: if a `Prompt` that is the source of others (it has children via `sourceId`) is deleted, the children are not deleted and the deletion of the parent is not blocked. The children's `sourceId` field automatically becomes `null` (`ON DELETE SET NULL` at database level, with no additional application logic). No textual trace of the deleted parent (for example, its title) is kept — that would be for a future phase if it is decided to keep history even when the source disappears.
 3. **"Create from"**: it duplicates the `title`, `body` and associated `Category` rows of the source prompt, plus the `sourceId` field pointing to it. The `id` and any history are not copied. The new prompt is completely independent and editable from the start.
-4. **Variables**: they are detected by convention in the `body` using the `{{variable_name}}` syntax. There is no separate variables table in the MVP — they are extracted from the text at the time of use (frontend or backend, to be decided in iteration 5).
+4. **Variables**: they are detected by convention in the `body` using the `{{variable_name}}` syntax. There is no separate variables table — they are extracted from the text at the time of use (in the current app, by `frontend/src/lib/variables.ts`).
 
 ## Diagram (text)
 
@@ -64,9 +64,9 @@ PromptCategory
   PK (promptId, categoryId)
 ```
 
-## Pending for future iterations (outside the MVP, does not block the start)
+## Pending for phase 2
 
-- Add `userId` to `Prompt` and `Category` when iteration 6 (user accounts) arrives.
-- Decide the `Draft` model in iteration 7b (pending ADR: state in the same record vs. separate entity).
-- Possible `PromptVersion` table for version history (iteration 7) — not designed yet.
-- Multilingual prompts (iteration 9): `Prompt` would move to having one or more translations (language + title + body). Not designed yet.
+- Add `userId` to `Prompt` and `Category` together with user accounts.
+- Decide the `Draft` model for draft autosave (pending ADR: state in the same record vs. separate entity).
+- Possible `PromptVersion` table for version history — not designed yet.
+- Multilingual prompts: `Prompt` would move to having one or more translations (language + title + body). Not designed yet.
