@@ -8,6 +8,14 @@
       content="Snippets Prompter: store, organize and reuse your prompts with fill-in variables."
     />
     <title>Snippets Prompter</title>
+    <script>
+      // Apply the saved theme before first paint to avoid a flash of the wrong one.
+      // Key and values mirror src/hooks/useTheme.ts.
+      try {
+        const theme = localStorage.getItem('snippets-prompter:theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
