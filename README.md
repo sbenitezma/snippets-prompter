@@ -24,10 +24,44 @@ server.
 - **Variables**: write `{{product}}` or `{{ tone }}` in a prompt, fill the
   values in, preview the result and copy it.
 - Free-text search over title and body.
-- Persists across reloads. Corrupted stored data never crashes the app.
+- **Import and export as CSV**, to back up your prompts or edit them in Google
+  Sheets or Excel (see [below](#import-and-export)).
+- Persists across reloads. If saved data is ever unreadable, the readable
+  prompts are kept, a verbatim copy is saved, and the app tells you how to
+  download it.
 - Light and dark themes: follows the system setting by default, or pick one
   (the choice is remembered).
 - Keyboard and screen reader friendly (see [Accessibility](#accessibility)).
+
+## Import and export
+
+**Export CSV** downloads every prompt; **Import CSV** reads one back. Before
+anything changes, a preview shows how many prompts are new, updated or
+unchanged, and which rows were skipped and why. An import never deletes.
+
+One prompt per row, with a header row:
+
+| title | body | categories | id | sourceId |
+| --- | --- | --- | --- | --- |
+| Product launch teaser | Write a {{tone}} teaser for … | marketing, social | seed-1 | |
+| Product launch teaser (short) | Write a {{tone}} one-line teaser for {{product}}. | marketing | seed-4 | seed-1 |
+
+- `title` and `body` are required; the same rules as the form apply.
+- `categories` is comma-separated, as in the form.
+- `id` is optional: a row whose id matches a saved prompt updates it. Leave it
+  empty to add a new prompt.
+- `sourceId` is optional: the id of the prompt it was created from.
+- Column order does not matter. Commas (Google Sheets), semicolons (Excel in
+  many European locales) and tabs all work.
+
+To use it with **Google Sheets**, open
+[`docs/sample-prompts.csv`](docs/sample-prompts.csv) with *File → Import*.
+Edit the sheet, then use *File → Download → Comma-separated values* and import
+that file here. To go the other way, export from the app and import the file
+into the sheet with *Replace current sheet*.
+
+Why CSV and not XLSX or the Google Sheets API: see
+[ADR 0004](docs/adr/0004-csv-import-export.md).
 
 ## Run it
 
@@ -64,10 +98,11 @@ build in [GitHub Actions](.github/workflows/ci.yml).
 ```
 frontend/src/
   App.tsx              screen: search, filters, list, and the form/panel above it
-  components/          PromptCard, PromptForm, VariablePanel, ThemeSwitcher
+  components/          PromptCard, PromptForm, VariablePanel, ImportPanel,
+                       RecoveryNotice, ThemeSwitcher
   ui/                  Button, Input/Textarea, Card (small, typed, reusable)
   hooks/               usePrompts (collection + persistence), useTheme
-  lib/                 pure logic: variables, filtering, storage, schema, seed data
+  lib/                 pure logic: variables, filtering, storage, schema, CSV, seed data
   styles/              design tokens and app styles
 ```
 
@@ -101,6 +136,10 @@ relational design.
   through `role="status"` regions.
 - Category filters are real buttons with `aria-pressed`; the theme switcher is
   a native `<select>`.
+- The import preview takes focus on its heading, so the summary is read before
+  the buttons.
+- ESLint runs `jsx-a11y` in strict mode, catching mistakes before they reach a
+  test.
 - Both themes meet WCAG AA contrast: 4.5:1 for text, 3:1 for control borders
   and the focus ring.
 - Automated checks with axe run for the main view, the form with errors and

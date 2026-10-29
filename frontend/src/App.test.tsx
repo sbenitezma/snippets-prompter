@@ -1,8 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { STORAGE_KEY } from './lib/storage';
 
 function setup() {
   const user = userEvent.setup();
@@ -213,5 +214,94 @@ describe('accessibility', () => {
     const { user, container } = setup();
     await user.click(screen.getByRole('button', { name: 'Use Product launch teaser' }));
     expect((await axe(container)).violations).toEqual([]);
+  });
+
+  it('has no axe violations in the import preview and the recovery notice', async () => {
+    window.localStorage.setItem(STORAGE_KEY, '{broken');
+    const { user, container } = setup();
+    await uploadCsv(user, 'title,body\nOk,Body\n,Missing title\n');
+    await screen.findByRole('heading', { name: 'Import “prompts.csv”' });
+    expect((await axe(container)).violations).toEqual([]);
+  });
+});
+
+async function uploadCsv(user: ReturnType<typeof userEvent.setup>, csv: string) {
+  const file = new File([csv], 'prompts.csv', { type: 'text/csv' });
+  await user.upload(screen.getByLabelText('CSV file to import'), file);
+}
+
+describe('import and export', () => {
+  it('exports every prompt as a spreadsheet-ready CSV', async () => {
+    // jsdom has no object URLs: stand in for them, and for the download click.
+    const created = vi.fn<(blob: Blob) => string>(() => 'blob:test');
+    URL.createObjectURL = created;
+    URL.revokeObjectURL = vi.fn();
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const { user } = setup();
+
+    await user.click(screen.getByRole('button', { name: 'Export CSV' }));
+
+    const csv = await created.mock.calls[0][0].text();
+    // FileReader drops the byte order mark when decoding, so only the header is checked.
+    expect(csv.split('\r\n')[0]).toBe('title,body,categories,id,sourceId');
+    expect(csv).toContain('Product launch teaser (short)');
+    expect(click).toHaveBeenCalledOnce();
+    expect(
+      screen.getByText(/^Exported 4 prompts to snippets-prompter-.*\.csv\.$/),
+    ).toBeInTheDocument();
+    click.mockRestore();
+  });
+
+  it('previews an import, applies it on confirmation and announces the result', async () => {
+    const { user } = setup();
+    const useButton = screen.getByRole('button', { name: 'Import CSV' });
+    await user.click(useButton);
+    await uploadCsv(
+      user,
+      'title,body,categories,id\nRenamed,Explain {{topic}}.,learning,seed-2\nBrand new,Hi,greetings,\n',
+    );
+
+    expect(await screen.findByText('1 new prompt')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Import “prompts.csv”' })).toHaveFocus();
+    expect(screen.getByText('1 prompt updated')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Import 2 prompts' }));
+
+    expect(screen.getByRole('heading', { level: 3, name: 'Brand new' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Renamed' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /Your prompts \(5\)/ })).toBeVisible();
+    expect(screen.getByText('Imported 1 new and 1 updated prompts.')).toBeInTheDocument();
+  });
+
+  it('changes nothing when an import is cancelled', async () => {
+    const { user } = setup();
+    await uploadCsv(user, 'title,body\nBrand new,Hi\n');
+    await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('heading', { level: 3, name: 'Brand new' })).not.toBeInTheDocument();
+  });
+
+  it('lists skipped rows and explains files it cannot use', async () => {
+    const { user } = setup();
+    await uploadCsv(user, 'title,body\n,No title\n');
+    expect(await screen.findByText('Row 2: Title is required')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Import \d/ })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+
+    await uploadCsv(user, 'name,text\nA,B\n');
+    expect(await screen.findByText(/must name the columns/)).toBeInTheDocument();
+  });
+});
+
+describe('recovery', () => {
+  it('tells the user when saved data could not be read, and keeps a copy', async () => {
+    window.localStorage.setItem(STORAGE_KEY, '{broken');
+    const { user } = setup();
+    expect(
+      screen.getByRole('heading', { name: 'Some saved prompts could not be read' }),
+    ).toBeInTheDocument();
+    const backups = Object.keys(window.localStorage).filter((key) => key.includes(':backup:'));
+    expect(backups).toHaveLength(1);
+
+    await user.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByRole('heading', { name: /could not be read/ })).not.toBeInTheDocument();
   });
 });
