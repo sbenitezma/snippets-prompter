@@ -38,11 +38,7 @@ export function allCategories(prompts: Prompt[]): string[] {
 }
 
 /** Free-text search over title and body, plus an optional category filter. */
-export function filterPrompts(
-  prompts: Prompt[],
-  query: string,
-  category: string | null,
-): Prompt[] {
+export function filterPrompts(prompts: Prompt[], query: string, category: string | null): Prompt[] {
   const needle = query.trim().toLowerCase();
   return prompts.filter((prompt) => {
     if (
@@ -53,8 +49,7 @@ export function filterPrompts(
     }
     if (needle === '') return true;
     return (
-      prompt.title.toLowerCase().includes(needle) ||
-      prompt.body.toLowerCase().includes(needle)
+      prompt.title.toLowerCase().includes(needle) || prompt.body.toLowerCase().includes(needle)
     );
   });
 }
@@ -63,10 +58,7 @@ export function filterPrompts(
  * The prompt this one was created from, or undefined when there is no source
  * or it has been deleted (a dangling sourceId counts as "no source").
  */
-export function findSource(
-  prompts: Prompt[],
-  prompt: Prompt,
-): Prompt | undefined {
+export function findSource(prompts: Prompt[], prompt: Prompt): Prompt | undefined {
   if (!prompt.sourceId) return undefined;
   return prompts.find((candidate) => candidate.id === prompt.sourceId);
 }
