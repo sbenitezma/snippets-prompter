@@ -1,5 +1,7 @@
 # Snippets Prompter
 
+[![CI](https://github.com/sbenitezma/snippets-prompter/actions/workflows/ci.yml/badge.svg)](https://github.com/sbenitezma/snippets-prompter/actions/workflows/ci.yml)
+
 Store, organize and reuse the prompts and text snippets you use every day.
 Prompts live in free-form categories and can contain `{{variables}}` that you
 fill in before copying the final text to the clipboard.
@@ -36,9 +38,14 @@ cd frontend
 npm install
 npm run dev        # development server
 npm test           # unit, component and accessibility tests
+npm run lint       # ESLint, including jsx-a11y accessibility rules
+npm run format     # format with Prettier (format:check only checks)
 npm run build      # type-check and production build
 npm run preview    # serve the production build locally
 ```
+
+Every push and pull request runs lint, format check, type-check, tests and
+build in [GitHub Actions](.github/workflows/ci.yml).
 
 ## Stack and why
 
@@ -48,6 +55,7 @@ npm run preview    # serve the production build locally
 | React Hook Form + Zod | One schema is the single source of truth for validation and form types. |
 | `localStorage` | The scope is a personal tool; a backend would add moving parts without adding value yet (see [ADR 0003](docs/adr/0003-scope-pivot-frontend-only.md)). |
 | Vitest + Testing Library + jest-axe | Tests exercise the app the way a user does, plus automated accessibility checks. |
+| ESLint (typescript-eslint, react-hooks, jsx-a11y) + Prettier | Catches bugs and accessibility mistakes in the editor, before they reach a test; formatting is never a review topic. |
 | CSS custom properties (`src/styles/tokens.css`) | Components never use raw values, so the look can change in one file (or be swapped for a shared design system). |
 | CSS `light-dark()` + `color-scheme` | Each colour token holds its light and dark value side by side, so the two themes cannot drift apart; native controls (scrollbars, selects) follow the theme too. |
 

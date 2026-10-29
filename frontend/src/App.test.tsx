@@ -49,15 +49,11 @@ describe('App', () => {
   it('creates a prompt and keeps it after a reload', async () => {
     const { user, unmount } = setup();
     await createPrompt(user, 'My test prompt', 'Hello {{name}}', 'testing, demo');
-    expect(
-      screen.getByRole('heading', { level: 3, name: 'My test prompt' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'My test prompt' })).toBeInTheDocument();
 
     unmount();
     render(<App />);
-    expect(
-      screen.getByRole('heading', { level: 3, name: 'My test prompt' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'My test prompt' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'demo' })).toBeInTheDocument();
   });
 
@@ -189,7 +185,7 @@ describe('focus management', () => {
     await user.click(screen.getByRole('button', { name: "Delete Explain like I'm new" }));
     await user.click(screen.getByRole('button', { name: "Confirm delete Explain like I'm new" }));
     expect(screen.getByRole('heading', { level: 2, name: /Your prompts/ })).toHaveFocus();
-    expect(screen.getByText('Deleted “Explain like I\'m new”.')).toBeInTheDocument();
+    expect(screen.getByText("Deleted “Explain like I'm new”.")).toBeInTheDocument();
   });
 
   it('announces how many prompts match a search', async () => {

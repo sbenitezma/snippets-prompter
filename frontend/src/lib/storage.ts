@@ -32,10 +32,7 @@ export function loadPrompts(storage: Storage = window.localStorage): Prompt[] {
 }
 
 /** Saves prompts; ignores storage failures (private mode, quota exceeded). */
-export function savePrompts(
-  prompts: Prompt[],
-  storage: Storage = window.localStorage,
-): void {
+export function savePrompts(prompts: Prompt[], storage: Storage = window.localStorage): void {
   try {
     storage.setItem(STORAGE_KEY, JSON.stringify(prompts));
   } catch {

@@ -15,10 +15,7 @@ export function extractVariables(body: string): string[] {
  * Replaces each {{name}} with its value. Variables left empty keep their
  * placeholder so the result never silently loses a gap to fill.
  */
-export function resolveVariables(
-  body: string,
-  values: Record<string, string>,
-): string {
+export function resolveVariables(body: string, values: Record<string, string>): string {
   return body.replace(VARIABLE_PATTERN, (placeholder, name: string) => {
     const value = values[name];
     return value && value.trim() !== '' ? value : placeholder;
