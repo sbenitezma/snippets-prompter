@@ -10,14 +10,20 @@
     <meta name="theme-color" content="#f7f6f3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#14161c" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- Link previews (Slack, LinkedIn...). og:image and og:url need the deployed URL. -->
+    <!-- Link previews (Slack, LinkedIn...). og:url and og:image must be absolute URLs. -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://snippets-prompter.netlify.app/" />
     <meta property="og:title" content="Snippets Prompter" />
     <meta
       property="og:description"
       content="Store, organize and reuse your prompts: free-form categories, fill-in variables, CSV import and export."
     />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://snippets-prompter.netlify.app/og-image.jpg" />
+    <meta
+      property="og:image:alt"
+      content="Filling the variables of a prompt and previewing the result"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>Snippets Prompter</title>
     <script>
       // Apply the saved theme before first paint to avoid a flash of the wrong one.

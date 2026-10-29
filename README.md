@@ -9,6 +9,8 @@ fill in before copying the final text to the clipboard.
 Everything runs in the browser and is saved in `localStorage`: no account, no
 server.
 
+**Try it: [snippets-prompter.netlify.app](https://snippets-prompter.netlify.app)**
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.jpg">
   <img alt="Filling the variables of a prompt and previewing the result" src="docs/screenshot-light.jpg">
