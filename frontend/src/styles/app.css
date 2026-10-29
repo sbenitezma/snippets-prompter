@@ -257,3 +257,17 @@ body {
 .empty {
   color: var(--color-text-muted);
 }
+
+.notice {
+  border-color: var(--color-danger);
+}
+
+.import-summary,
+.import-issues {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-6);
+}
+
+.import-issues {
+  color: var(--color-danger);
+}
