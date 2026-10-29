@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { closeOnEscape } from '../lib/keyboard';
 import { parseCategories } from '../lib/prompts';
 import { promptFormSchema, type PromptFormValues } from '../lib/schema';
 import type { PromptDraft } from '../types';
@@ -36,7 +37,7 @@ export function PromptForm({ heading, initial, onSubmit, onCancel }: PromptFormP
   }, [setFocus]);
 
   return (
-    <Card className="panel">
+    <Card className="panel" onKeyDown={closeOnEscape(onCancel)}>
       <h2>{heading}</h2>
       <form
         className="form-grid"

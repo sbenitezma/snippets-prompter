@@ -1,4 +1,5 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { closeOnEscape } from '../lib/keyboard';
 import { extractVariables, resolveVariables } from '../lib/variables';
 import type { Prompt } from '../types';
 import { Button } from '../ui/Button';
@@ -16,8 +17,15 @@ export function VariablePanel({ prompt, onClose }: VariablePanelProps) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [status, setStatus] = useState('');
   const previewId = useId();
+  const panel = useRef<HTMLElement>(null);
 
   const resolved = resolveVariables(prompt.body, values);
+
+  // Move focus into the panel when it opens: the first variable, or the copy
+  // button when there is nothing to fill in.
+  useEffect(() => {
+    panel.current?.querySelector<HTMLElement>('input, button')?.focus();
+  }, []);
 
   async function copy() {
     try {
@@ -29,7 +37,7 @@ export function VariablePanel({ prompt, onClose }: VariablePanelProps) {
   }
 
   return (
-    <Card className="panel">
+    <Card className="panel" ref={panel} onKeyDown={closeOnEscape(onClose)}>
       <h2>Use “{prompt.title}”</h2>
       {variables.length === 0 ? (
         <p className="empty">This prompt has no variables, so it is ready to copy.</p>
@@ -47,10 +55,10 @@ export function VariablePanel({ prompt, onClose }: VariablePanelProps) {
           ))}
         </div>
       )}
-      <h3 id={previewId}>Preview</h3>
-      <pre className="preview" aria-labelledby={previewId}>
-        {resolved}
-      </pre>
+      <section aria-labelledby={previewId}>
+        <h3 id={previewId}>Preview</h3>
+        <pre className="preview">{resolved}</pre>
+      </section>
       <div className="actions">
         <Button onClick={copy}>Copy to clipboard</Button>
         <Button tone="secondary" onClick={onClose}>
